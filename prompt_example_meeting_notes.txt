@@ -1,0 +1,13 @@
+Create meeting notes from this call transcript:
+
+1. **Attendees**: Who participated in the call
+2. **Key Discussions**: Main topics covered
+3. **Decisions Made**: Important decisions reached
+4. **Action Items**: Tasks assigned with owners
+5. **Next Meeting**: When is the follow-up scheduled
+6. **Open Issues**: Unresolved matters requiring attention
+
+Call Transcript:
+{TRANSCRIPT}
+
+Meeting Summary:

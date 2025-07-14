@@ -1,0 +1,70 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: transcribe-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      - OLLAMA_MODELS=/root/.ollama/models
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  transcribe:
+    build: .
+    container_name: transcribe-app
+    depends_on:
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ./calls_to_process:/app/calls_to_process
+      - ./calls_transcribed:/app/calls_transcribed
+      - ./calls_summary:/app/calls_summary
+      - ./calls_analysis:/app/calls_analysis
+      - ./config.txt:/app/config.txt:ro
+      - ./prompt_template.txt:/app/prompt_template.txt:ro
+      - whisper_cache:/root/.cache/whisper
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - docker.env
+    restart: "no"
+    profiles:
+      - manual
+
+  transcribe-batch:
+    build: .
+    container_name: transcribe-batch
+    depends_on:
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ./calls_to_process:/app/calls_to_process
+      - ./calls_transcribed:/app/calls_transcribed
+      - ./calls_summary:/app/calls_summary
+      - ./calls_analysis:/app/calls_analysis
+      - ./config.txt:/app/config.txt:ro
+      - ./prompt_template.txt:/app/prompt_template.txt:ro
+      - whisper_cache:/root/.cache/whisper
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - docker.env
+    command: ["python", "transcribe_and_summarise.py", "--batch"]
+    restart: "no"
+    profiles:
+      - batch
+
+volumes:
+  ollama_models:
+    driver: local
+  whisper_cache:
+    driver: local

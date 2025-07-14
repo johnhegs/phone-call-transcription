@@ -1,0 +1,13 @@
+Please analyse this customer service call transcript and provide:
+
+1. **Customer Issue**: What problem or request did the customer have?
+2. **Resolution Provided**: How was the issue addressed?
+3. **Customer Satisfaction**: Was the customer satisfied with the resolution?
+4. **Agent Performance**: How well did the agent handle the call?
+5. **Follow-up Required**: Are there any actions needed after this call?
+6. **Call Quality Score**: Rate the call quality from 1-10 with reasoning
+
+Call Transcript:
+{TRANSCRIPT}
+
+Provide a detailed analysis:

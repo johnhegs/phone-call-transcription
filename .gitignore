@@ -1,0 +1,108 @@
+# Python Virtual Environment
+transcribe_env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Audio processing temporary files
+left_channel_speaker1.wav
+right_channel_speaker2.wav
+
+# Generated output files
+call_transcript.txt
+call_summary.txt
+conversation_analysis.txt
+
+# Batch processing folders
+calls_to_process/
+calls_transcribed/
+calls_summary/
+calls_analysis/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Claude Code CLI
+.claude/
+
+# Secret keys and config
+.webui_secret_key
+
+# Logs
+*.log
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+# .python-version - keeping this committed for consistent Python version
+
+# Environment variables
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Docker
+.docker/
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Docker environment file (if it contains secrets)
+# docker.env should be committed as it contains default configs
+# but uncomment the line below if you add sensitive data to it
+# docker.env
+
+# Docker volumes and container data
+.volumes/
+docker-data/
+
+# Large audio files (optional - depends on your use case)
+*.mp3
+*.wav
+*.m4a
+*.flac
+*.aac
+*.ogg
+*.wma
+
+# But keep sample files if any
+!sample*.mp3
+!demo*.mp3
+!test*.mp3

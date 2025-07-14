@@ -1,0 +1,13 @@
+Analyse this sales call transcript and provide:
+
+1. **Prospect Needs**: What needs or pain points were identified?
+2. **Products Discussed**: What solutions were presented?
+3. **Objections Raised**: What concerns did the prospect express?
+4. **Next Steps**: What follow-up actions were agreed upon?
+5. **Sales Opportunity**: Rate the likelihood of closing (High/Medium/Low)
+6. **Key Decision Makers**: Who are the important people mentioned?
+
+Call Transcript:
+{TRANSCRIPT}
+
+Summary:

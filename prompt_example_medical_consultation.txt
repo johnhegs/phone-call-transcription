@@ -1,0 +1,13 @@
+Analyse this medical consultation transcript:
+
+1. **Chief Complaint**: Primary reason for the consultation
+2. **Symptoms Discussed**: Key symptoms and concerns raised
+3. **Assessment**: Medical professional's evaluation
+4. **Treatment Plan**: Recommended treatments or interventions
+5. **Follow-up Instructions**: Next steps for the patient
+6. **Prescriptions**: Any medications mentioned
+
+Call Transcript:
+{TRANSCRIPT}
+
+Medical Summary:

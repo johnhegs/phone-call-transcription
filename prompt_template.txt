@@ -1,0 +1,20 @@
+Please analyse the following phone call transcript and provide a comprehensive summary that includes:
+
+1. **Key Topics Discussed**: Main subjects covered in the call
+
+2. **Action Items**: Any tasks, commitments, or follow-ups mentioned
+
+3. **Decisions Made**: Important decisions or agreements reached
+
+4. **Overall Tone**: Professional, casual, urgent, etc.
+
+5. **Next Steps**: Any planned future actions or meetings
+
+6. **Customer Satisfaction**: Assessment of how well the customer's needs were addressed
+
+7. **Call Quality**: Overall effectiveness of the conversation
+
+Call Transcript:
+{TRANSCRIPT}
+
+Please provide a clear, structured summary:

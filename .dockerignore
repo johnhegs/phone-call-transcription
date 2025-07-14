@@ -1,0 +1,50 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+build
+*.egg-info
+dist
+
+# Virtual environments
+venv
+env
+.venv
+.env
+transcribe_env
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Audio files (these should be mounted as volumes)
+*.mp3
+*.wav
+*.m4a
+*.flac
+
+# Output files (these should be mounted as volumes)
+call_transcript.txt
+call_summary.txt
+conversation_analysis.txt
+
+# Large directories that should be volumes
+calls_to_process
+calls_transcribed
+calls_summary
+calls_analysis
+
+# Poetry
+# poetry.lock - keeping this for reproducible builds

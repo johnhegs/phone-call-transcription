@@ -1,0 +1,36 @@
+# Transcription and AI Analysis Configuration
+# Edit these settings to customise the application behaviour
+
+# AI Model Settings
+OLLAMA_MODEL=llama3.1:latest
+OLLAMA_URL=http://ollama:11434
+
+# Whisper Model (tiny, base, small, medium, large)
+# Note: medium/large models require 4GB+ RAM, use base for limited memory
+WHISPER_MODEL=base
+
+# Audio Processing Settings
+SEGMENT_MERGE_THRESHOLD=2.0
+
+# Output Settings
+INCLUDE_TIMESTAMPS=true
+INCLUDE_CONVERSATION_ANALYSIS=true
+SAVE_INDIVIDUAL_CHANNELS=false
+
+# Speaker Labels (customise how speakers are identified)
+LEFT_SPEAKER_NAME=Agent
+RIGHT_SPEAKER_NAME=Customer
+
+# Batch Processing Settings
+BATCH_MODE=false
+INPUT_FOLDER=calls_to_process
+OUTPUT_TRANSCRIPT_FOLDER=calls_transcribed
+OUTPUT_SUMMARY_FOLDER=calls_summary
+OUTPUT_ANALYSIS_FOLDER=calls_analysis
+SKIP_EXISTING_FILES=true
+MAX_CONCURRENT_PROCESSING=1
+
+# Language Settings
+FORCE_LANGUAGE=english
+# Options: auto, english, spanish, french, german, italian, portuguese, russian, japanese, chinese, etc.
+# Use 'auto' for automatic detection or specify language for faster/more accurate transcription
