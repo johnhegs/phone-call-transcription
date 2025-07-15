@@ -95,8 +95,13 @@ start_services() {
     done
     echo
     
-    print_status "Pulling Ollama model (this may take a few minutes)..."
-    docker-compose exec ollama ollama pull llama3.1:latest
+    print_status "Checking if Ollama model is available..."
+    if ! docker-compose exec ollama ollama list | grep -q "llama3.1:latest"; then
+        print_status "Pulling Ollama model (this may take a few minutes)..."
+        docker-compose exec ollama ollama pull llama3.1:latest
+    else
+        print_status "Ollama model llama3.1:latest is already available"
+    fi
     
     print_status "Services are ready!"
 }
@@ -142,15 +147,29 @@ stop_services() {
     docker-compose down
 }
 
-# Function to clean up everything
+# Function to clean up containers and images (preserving volumes)
 cleanup() {
-    print_warning "This will remove all containers, images, and volumes. Are you sure? (y/N)"
+    print_warning "This will remove all containers and images but preserve volumes (models will be kept). Are you sure? (y/N)"
     read -r response
     if [[ "$response" =~ ^[Yy]$ ]]; then
-        print_status "Cleaning up..."
+        print_status "Cleaning up containers and images..."
+        docker-compose down --rmi all
+        docker system prune -f
+        print_status "Cleanup complete (volumes preserved)"
+    else
+        print_status "Cleanup cancelled"
+    fi
+}
+
+# Function to clean up everything including volumes
+cleanup_all() {
+    print_warning "This will remove ALL containers, images, and volumes (models will be deleted). Are you sure? (y/N)"
+    read -r response
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        print_status "Cleaning up everything..."
         docker-compose down -v --rmi all
         docker system prune -f
-        print_status "Cleanup complete"
+        print_status "Complete cleanup done (all data removed)"
     else
         print_status "Cleanup cancelled"
     fi
@@ -188,8 +207,11 @@ case "${1:-help}" in
     "cleanup")
         cleanup
         ;;
+    "cleanup-all")
+        cleanup_all
+        ;;
     "help"|*)
-        echo "Usage: $0 {setup|start|single|batch|shell|logs|stop|cleanup|help}"
+        echo "Usage: $0 {setup|start|single|batch|shell|logs|stop|cleanup|cleanup-all|help}"
         echo ""
         echo "Commands:"
         echo "  setup          - Create necessary directories and default config files"
@@ -199,7 +221,8 @@ case "${1:-help}" in
         echo "  shell          - Start interactive shell in transcribe container"
         echo "  logs [service] - Show logs for all services or specific service"
         echo "  stop           - Stop all services"
-        echo "  cleanup        - Remove all containers, images, and volumes"
+        echo "  cleanup        - Remove containers and images (keep volumes/models)"
+        echo "  cleanup-all    - Remove containers, images, and volumes (delete models)"
         echo "  help           - Show this help message"
         echo ""
         echo "Examples:"
