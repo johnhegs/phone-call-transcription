@@ -46,5 +46,5 @@ calls_transcribed
 calls_summary
 calls_analysis
 
-# Poetry
-# poetry.lock - keeping this for reproducible builds
+# pip requirements
+requirements-dev.txt

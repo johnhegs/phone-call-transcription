@@ -244,7 +244,7 @@ Transcribe/
 ## Dependencies
 
 All dependencies are managed via `requirements.txt`:
-- `openai-whisper` - Primary transcription engine
+- `faster-whisper` - High-performance transcription engine (optimized for all platforms)
 - `pydub` - Audio processing
 - `SpeechRecognition` - Fallback transcription
 - `requests` - Ollama API communication
