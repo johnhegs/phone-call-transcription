@@ -3,7 +3,7 @@
 
 # AI Model Settings
 OLLAMA_MODEL=llama3.1:latest
-OLLAMA_URL=http://ollama:11434
+OLLAMA_URL=http://localhost:11434
 
 # Whisper Model (tiny, base, small, medium, large)
 # Note: medium/large models require 4GB+ RAM, use base for limited memory

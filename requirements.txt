@@ -1,0 +1,5 @@
+openai-whisper
+pydub==0.25.1
+SpeechRecognition==3.10.0
+requests==2.31.0
+tqdm==4.67.0

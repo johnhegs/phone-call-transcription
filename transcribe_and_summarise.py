@@ -30,9 +30,9 @@ class CallTranscriber:
         self.config = self.load_config(config_file)
         self.prompt_template = self.load_prompt_template(prompt_file)
         
-        # Initialize components with config values
-        self.ollama_url = self.config.get('ollama_url', 'http://localhost:11434')
-        self.ollama_model = self.config.get('ollama_model', 'llama3.1:latest')
+        # Initialize components with config values (environment variables override config file)
+        self.ollama_url = os.environ.get('OLLAMA_URL', self.config.get('ollama_url', 'http://localhost:11434'))
+        self.ollama_model = os.environ.get('OLLAMA_MODEL', self.config.get('ollama_model', 'llama3.1:latest'))
         self.whisper_model_name = self.config.get('whisper_model', 'base')
         self.segment_merge_threshold = float(self.config.get('segment_merge_threshold', '2.0'))
         self.left_speaker_name = self.config.get('left_speaker_name', 'Speaker 1')
@@ -46,6 +46,7 @@ class CallTranscriber:
         self.whisper_model = whisper.load_model(self.whisper_model_name)
         
         print(f"Configuration loaded:")
+        print(f"  - Ollama URL: {self.ollama_url}")
         print(f"  - Ollama Model: {self.ollama_model}")
         print(f"  - Whisper Model: {self.whisper_model_name}")
         print(f"  - Speaker Labels: {self.left_speaker_name}, {self.right_speaker_name}")

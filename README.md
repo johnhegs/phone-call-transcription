@@ -100,7 +100,7 @@ flowchart TD
 
 ### Native Installation
 1. **Python 3.11+** (managed by pyenv)
-2. **Poetry** for dependency management
+2. **pip** for dependency management
 3. **Ollama** installed and running locally
 4. **Audio file**: `activitycall.mp3` (stereo MP3 with speakers on left/right channels)
 
@@ -165,11 +165,14 @@ ollama pull llama3.1
 # Ensure correct Python version is active (pyenv will use .python-version file)
 pyenv install 3.11.13  # if not already installed
 
-# Install dependencies with Poetry
-poetry install
+# Create virtual environment
+python3 -m venv venv
 
-# Install openai-whisper separately (due to platform compatibility)
-poetry run pip install openai-whisper
+# Activate virtual environment
+source venv/bin/activate
+
+# Install dependencies with pip (avoiding Poetry conflicts)
+pip install -r requirements.txt
 ```
 
 ### 3. Start Ollama (if not running)
@@ -237,48 +240,56 @@ FORCE_LANGUAGE=auto               # Language detection (auto/english/spanish/etc
 
 ### Single File Processing (Default)
 ```bash
+# Activate virtual environment first
+source venv/bin/activate
+
 # Process the default file (activitycall.mp3)
-poetry run python transcribe_and_summarise.py
+python transcribe_and_summarise.py
 
 # Process a specific file
-poetry run python transcribe_and_summarise.py --file your_audio_file.mp3
+python transcribe_and_summarise.py --file your_audio_file.mp3
 ```
 
 ### Batch Processing (Multiple Files)
 ```bash
+# Activate virtual environment first
+source venv/bin/activate
+
 # Process all .mp3 files in the calls_to_process folder
-poetry run python transcribe_and_summarise.py --batch
+python transcribe_and_summarise.py --batch
 
 # Process files from a custom folder
-poetry run python transcribe_and_summarise.py --batch --input-folder custom_folder
+python transcribe_and_summarise.py --batch --input-folder custom_folder
 
 # Force all audio to be treated as English (faster transcription)
-poetry run python transcribe_and_summarise.py --batch --language english
+python transcribe_and_summarise.py --batch --language english
 
 # Force reprocessing of all files (including previously processed ones)
-poetry run python transcribe_and_summarise.py --batch --force
+python transcribe_and_summarise.py --batch --force
 ```
 
 ### Language Options
 ```bash
+# Activate virtual environment first
+source venv/bin/activate
+
 # Force English for single file
-poetry run python transcribe_and_summarise.py --file audio.mp3 --language english
+python transcribe_and_summarise.py --file audio.mp3 --language english
 
 # Use automatic language detection
-poetry run python transcribe_and_summarise.py --batch --language auto
+python transcribe_and_summarise.py --batch --language auto
 
 # Other supported languages: spanish, french, german, italian, portuguese, etc.
-poetry run python transcribe_and_summarise.py --batch --language spanish
+python transcribe_and_summarise.py --batch --language spanish
 ```
 
 ### Configure Prompts and Settings (Non-Technical Users)
 ```bash
-# Using Poetry shell
-poetry shell
-python configure.py
+# Activate virtual environment first
+source venv/bin/activate
 
-# Or run directly with Poetry
-poetry run python configure.py
+# Run configuration script
+python configure.py
 
 # Docker version
 ./docker-run.sh shell
@@ -287,12 +298,11 @@ python configure.py
 
 ### Test Ollama Connection
 ```bash
-# Using Poetry shell
-poetry shell
-python test_ollama.py
+# Activate virtual environment first
+source venv/bin/activate
 
-# Or run directly with Poetry
-poetry run python test_ollama.py
+# Test Ollama connection
+python test_ollama.py
 
 # Docker version
 ./docker-run.sh shell
