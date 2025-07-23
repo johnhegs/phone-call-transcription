@@ -12,15 +12,15 @@ WORKDIR /app
 
 # Install Python packages directly with pip (avoiding Poetry conflicts)
 RUN pip install --no-cache-dir \
-    openai-whisper \
+    faster-whisper==1.1.1 \
     pydub==0.25.1 \
     SpeechRecognition==3.10.0 \
     requests==2.31.0 \
     tqdm==4.67.0
 
 # Pre-download the base Whisper model to optimize runtime performance
-# Medium model will be downloaded on first use to avoid Docker build memory issues
-RUN python -c "import whisper; print('Downloading Whisper base model...'); whisper.load_model('base'); print('Base model cached successfully')"
+# faster-whisper will download model on first use, which is more memory efficient for Docker builds
+# Model caching will happen at runtime
 
 # Copy application files
 COPY transcribe_and_summarise.py configure.py test_ollama.py ./
