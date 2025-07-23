@@ -93,6 +93,7 @@ flowchart TD
 - **Human-Readable Format**: Professional transcript layout with timestamps, speaker labels, and clean text
 - **Conversation Analytics**: Detailed statistics on speaking time, turns, and conversation dynamics
 - **Local AI Summarisation**: Uses Ollama (llama3.1) running locally for intelligent call summaries
+- **Customisable AI Prompts**: Easy-to-edit prompt templates for tailored analysis (customer service, sales, medical, etc.)
 - **Docker Support**: Fully containerised with isolated Ollama service for consistent deployments
 - **Flexible Deployment**: Choose between Docker (recommended) or native Python installation
 
