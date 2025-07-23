@@ -244,11 +244,11 @@ Transcribe/
 ## Dependencies
 
 All dependencies are managed via `requirements.txt`:
-- `faster-whisper` - High-performance transcription engine (optimized for all platforms)
-- `pydub` - Audio processing
-- `SpeechRecognition` - Fallback transcription
-- `requests` - Ollama API communication
-- `tqdm` - Progress bars
+- `faster-whisper==1.1.1` - High-performance transcription engine (optimized for all platforms)
+- `pydub==0.25.1` - Audio processing
+- `SpeechRecognition==3.10.0` - Fallback transcription
+- `requests==2.31.0` - Ollama API communication
+- `tqdm==4.67.0` - Progress bars
 
 ## Troubleshooting
 
