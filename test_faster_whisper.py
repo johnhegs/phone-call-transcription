@@ -29,14 +29,14 @@ def test_whisper_model_initialization():
         model_name = "base"
         print(f"Loading model: {model_name} (faster-whisper optimized)...")
         
-        model = WhisperModel(model_name, device="cpu", compute_type="int8")
+        model = WhisperModel(model_name)
         print("✅ Whisper model loaded successfully!")
         
         # Get model info if available
         try:
             print(f"   Model name: {model_name}")
-            print(f"   Device: cpu")
-            print(f"   Compute type: int8")
+            print(f"   Device: auto-selected")
+            print(f"   Compute type: auto-selected")
         except Exception:
             pass
             
@@ -51,7 +51,7 @@ def test_model_compatibility():
     try:
         from faster_whisper import WhisperModel
         
-        model = WhisperModel("base", device="cpu", compute_type="int8")
+        model = WhisperModel("base")
         
         # Test if we can access model properties
         print("✅ Model compatibility test passed!")

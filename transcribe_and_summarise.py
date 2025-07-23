@@ -8,9 +8,20 @@ Creates chronologically ordered, human-readable transcripts.
 import os
 import json
 import requests
+import warnings
+import logging
 from pydub import AudioSegment
 from pydub.effects import normalize, compress_dynamic_range
 import speech_recognition as sr
+from pathlib import Path
+from datetime import datetime, timedelta
+import re
+import configparser
+import argparse
+import glob
+import time
+from typing import List, Tuple
+import numpy as np
 
 # Try to import whisper libraries - prefer faster-whisper
 try:
@@ -24,15 +35,6 @@ try:
     STANDARD_WHISPER_AVAILABLE = True
 except ImportError:
     STANDARD_WHISPER_AVAILABLE = False
-from pathlib import Path
-from datetime import datetime, timedelta
-import re
-import configparser
-import argparse
-import glob
-import time
-from typing import List, Tuple
-import numpy as np
 
 
 class CallTranscriber:
@@ -210,7 +212,6 @@ Please provide a clear, structured summary:"""
                     print(f"Forcing language to: {lang_code}")
                 
                 # Suppress faster-whisper runtime warnings for cleaner output
-                import warnings
                 with warnings.catch_warnings():
                     warnings.filterwarnings("ignore", category=RuntimeWarning, module="faster_whisper")
                     
@@ -235,10 +236,6 @@ Please provide a clear, structured summary:"""
             else:
                 # Use standard Whisper API
                 # Suppress progress bars and warnings during transcription
-                import warnings
-                import logging
-                
-                # Temporarily suppress warnings and progress bars
                 with warnings.catch_warnings():
                     warnings.filterwarnings("ignore", category=UserWarning)
                     
