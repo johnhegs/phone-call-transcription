@@ -11,12 +11,19 @@ import requests
 from pydub import AudioSegment
 from pydub.effects import normalize, compress_dynamic_range
 import speech_recognition as sr
-import whisper
+
+# Try to import whisper libraries - prefer faster-whisper
 try:
     from faster_whisper import WhisperModel
     FASTER_WHISPER_AVAILABLE = True
 except ImportError:
     FASTER_WHISPER_AVAILABLE = False
+
+try:
+    import whisper
+    STANDARD_WHISPER_AVAILABLE = True
+except ImportError:
+    STANDARD_WHISPER_AVAILABLE = False
 from pathlib import Path
 from datetime import datetime, timedelta
 import re
@@ -46,22 +53,27 @@ class CallTranscriber:
         
         self.recognizer = sr.Recognizer()
         
-        # Load Whisper model - try faster-whisper first for ARM64 compatibility
+        # Load Whisper model - try faster-whisper first for better performance
         if FASTER_WHISPER_AVAILABLE:
-            print(f"Loading faster-whisper model: {self.whisper_model_name} (ARM64 optimized)...")
+            print(f"Loading faster-whisper model: {self.whisper_model_name}...")
             try:
-                self.whisper_model = WhisperModel(self.whisper_model_name, device="cpu", compute_type="int8")
+                self.whisper_model = WhisperModel(self.whisper_model_name)
                 self.using_faster_whisper = True
                 print(f"✅ Faster-whisper model loaded successfully")
             except Exception as e:
                 print(f"Warning: Could not load faster-whisper model: {e}")
-                print(f"Falling back to standard Whisper...")
-                self.whisper_model = whisper.load_model(self.whisper_model_name)
-                self.using_faster_whisper = False
-        else:
+                if STANDARD_WHISPER_AVAILABLE:
+                    print(f"Falling back to standard Whisper...")
+                    self.whisper_model = whisper.load_model(self.whisper_model_name)
+                    self.using_faster_whisper = False
+                else:
+                    raise RuntimeError("Neither faster-whisper nor standard whisper could be loaded. Please install at least one: pip install faster-whisper")
+        elif STANDARD_WHISPER_AVAILABLE:
             print(f"Loading standard Whisper model: {self.whisper_model_name}...")
             self.whisper_model = whisper.load_model(self.whisper_model_name)
             self.using_faster_whisper = False
+        else:
+            raise RuntimeError("No Whisper library available. Please install either: pip install faster-whisper OR pip install openai-whisper")
         
         print(f"Configuration loaded:")
         print(f"  - Ollama URL: {self.ollama_url}")
@@ -197,22 +209,27 @@ Please provide a clear, structured summary:"""
                     transcribe_kwargs['language'] = lang_code
                     print(f"Forcing language to: {lang_code}")
                 
-                # Use faster-whisper to transcribe
-                segments_generator, info = self.whisper_model.transcribe(
-                    audio_file_path, **transcribe_kwargs
-                )
-                
-                # Convert generator to list and format segments
-                segments = []
-                for segment in segments_generator:
-                    if segment.text.strip():
-                        segments.append({
-                            'start': segment.start,
-                            'end': segment.end,
-                            'text': segment.text.strip(),
-                            'speaker': speaker_label,
-                            'speaker_id': speaker_id
-                        })
+                # Suppress faster-whisper runtime warnings for cleaner output
+                import warnings
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", category=RuntimeWarning, module="faster_whisper")
+                    
+                    # Use faster-whisper to transcribe
+                    segments_generator, info = self.whisper_model.transcribe(
+                        audio_file_path, **transcribe_kwargs
+                    )
+                    
+                    # Convert generator to list and format segments
+                    segments = []
+                    for segment in segments_generator:
+                        if segment.text.strip():
+                            segments.append({
+                                'start': segment.start,
+                                'end': segment.end,
+                                'text': segment.text.strip(),
+                                'speaker': speaker_label,
+                                'speaker_id': speaker_id
+                            })
                 
                 return segments
             else:
