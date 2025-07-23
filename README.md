@@ -54,7 +54,7 @@ flowchart TD
     end
     
     subgraph Native ["💻 Native Deployment"]
-        U["🐍 Python Environment<br/>(Poetry)"]
+        U["🐍 Python Environment<br/>(pip + venv)"]
         V["🦙 Local Ollama<br/>(System Service)"]
         
         U --> V
@@ -93,225 +93,118 @@ flowchart TD
 - **Human-Readable Format**: Professional transcript layout with timestamps, speaker labels, and clean text
 - **Conversation Analytics**: Detailed statistics on speaking time, turns, and conversation dynamics
 - **Local AI Summarisation**: Uses Ollama (llama3.1) running locally for intelligent call summaries
+- **Customisable AI Prompts**: Easy-to-edit prompt templates for tailored analysis (customer service, sales, medical, etc.)
 - **Docker Support**: Fully containerised with isolated Ollama service for consistent deployments
 - **Flexible Deployment**: Choose between Docker (recommended) or native Python installation
 
 ## Prerequisites
 
-### Native Installation
-1. **Python 3.11+** (managed by pyenv)
-2. **Poetry** for dependency management
-3. **Ollama** installed and running locally
-4. **Audio file**: `activitycall.mp3` (stereo MP3 with speakers on left/right channels)
+### System Requirements
+- **8GB RAM minimum** for AI summarisation features
+- **6GB storage** for models and cache
+- **Docker environment with 8GB RAM** (for Colima: `colima start --memory 8`)
 
 ### Docker Installation (Recommended)
 1. **Docker** and **Docker Compose** installed
-2. **Audio files** placed in the `calls_to_process` directory
+2. **Docker environment running with 8GB+ RAM**
 
-**Benefits of Docker approach:**
-- No dependency conflicts or version issues
-- Isolated Ollama service with persistent models
-- Consistent environment across different systems
-- Automatic service health checks and startup coordination
-- Easy cleanup and management
+### Native Installation
+1. **Python 3.11+** (managed by pyenv)
+2. **Ollama** installed and running locally
+3. **8GB+ RAM** for optimal performance
 
-## Setup
+## Quick Start
 
-### Docker Setup (Recommended)
-
-The easiest way to run this application is using Docker, which handles all dependencies including Ollama:
-
+### Docker (Recommended)
 ```bash
-# 1. Initial setup - creates directories and default config files
+# Setup (one-time)
+colima start --memory 8  # For Colima users
 ./docker-run.sh setup
 
-# 2. Start all services (Ollama + dependencies) - first run takes longer as it downloads models
-./docker-run.sh start
-
-# 3. Place your audio files in the calls_to_process directory
-cp your_recording.mp3 calls_to_process/
-
-# 4. Process a single file
-./docker-run.sh single your_recording.mp3
-
-# 5. Or process all files in batch
-./docker-run.sh batch
+# Run
+cp your_audio_file.mp3 calls_to_process/
+./docker-run.sh single your_audio_file.mp3
 ```
 
-**Complete Docker Commands Reference:**
+### Native
 ```bash
-./docker-run.sh setup          # Create directories and config files
-./docker-run.sh start          # Start Ollama and pull models (one-time setup)
-./docker-run.sh single <file>  # Process single audio file
-./docker-run.sh batch          # Process all files in calls_to_process/
-./docker-run.sh shell          # Interactive shell for debugging
-./docker-run.sh logs           # View all service logs
-./docker-run.sh logs ollama    # View Ollama-specific logs
-./docker-run.sh stop           # Stop all services
-./docker-run.sh cleanup        # Complete cleanup (removes everything)
-```
+# Setup (one-time)
+pyenv install 3.11.13
+curl -fsSL https://ollama.ai/install.sh | sh
+ollama serve & && ollama pull llama3.1
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
 
-### Native Setup
-
-### 1. Install Ollama
-```bash
-# Install Ollama from https://ollama.ai/
-# Pull the required model
-ollama pull llama3.1
-```
-
-### 2. Set up Python Environment
-```bash
-# Ensure correct Python version is active (pyenv will use .python-version file)
-pyenv install 3.11.13  # if not already installed
-
-# Install dependencies with Poetry
-poetry install
-
-# Install openai-whisper separately (due to platform compatibility)
-poetry run pip install openai-whisper
-```
-
-### 3. Start Ollama (if not running)
-```bash
-ollama serve
+# Run
+source venv/bin/activate
+cp your_audio_file.mp3 calls_to_process/
+python transcribe_and_summarise.py --file your_audio_file.mp3
 ```
 
 ## Usage
 
-### Docker Usage (Recommended)
+### Basic Commands
 
-#### Basic Commands
+**Docker:**
 ```bash
-# Process a single file
-./docker-run.sh single your_audio_file.mp3
-
-# Process all files in calls_to_process directory
-./docker-run.sh batch
-
-# Interactive shell for troubleshooting
-./docker-run.sh shell
-
-# View logs
-./docker-run.sh logs
-./docker-run.sh logs ollama
-
-# Stop services
-./docker-run.sh stop
-
-# Full cleanup (removes containers, images, volumes)
-./docker-run.sh cleanup
+./docker-run.sh single <file>     # Process single file
+./docker-run.sh batch             # Process all files in calls_to_process/
+./docker-run.sh logs              # View logs
+./docker-run.sh stop              # Stop services
+./docker-run.sh cleanup           # Complete cleanup
 ```
 
-#### File Organisation
+**Native:**
 ```bash
-# Place audio files here for processing
-calls_to_process/
-├── recording1.mp3
-├── recording2.mp3
-└── meeting.mp3
-
-# Outputs will be generated in:
-calls_transcribed/    # Transcription files (.txt)
-calls_summary/        # AI summaries (.txt)
-calls_analysis/       # Conversation analysis (.txt)
+source venv/bin/activate
+python transcribe_and_summarise.py --file <file>    # Single file
+python transcribe_and_summarise.py --batch          # Batch processing
+python transcribe_and_summarise.py --language english  # Force language
 ```
 
-#### Docker Environment Configuration
-The Docker setup uses environment variables that can be customised in `docker.env`:
-```bash
-# Ollama Configuration
-OLLAMA_MODEL=llama3.1:latest      # AI model for summarisation
-WHISPER_MODEL=base                # Whisper model for transcription
-
-# Speaker Configuration  
-LEFT_SPEAKER_NAME=Customer        # Label for left audio channel
-RIGHT_SPEAKER_NAME=Agent          # Label for right audio channel
-
-# Processing Settings
-SEGMENT_MERGE_THRESHOLD=2.0       # Merge nearby speech segments
-FORCE_LANGUAGE=auto               # Language detection (auto/english/spanish/etc.)
+### File Organisation
+```
+calls_to_process/     # Input: Place audio files here
+calls_transcribed/    # Output: Transcription files (.txt)
+calls_summary/        # Output: AI summaries (.txt)
+calls_analysis/       # Output: Conversation analysis (.txt)
 ```
 
-### Native Usage
+### Advanced Options
 
-### Single File Processing (Default)
-```bash
-# Process the default file (activitycall.mp3)
-poetry run python transcribe_and_summarise.py
+**Language Options:**
+- `--language auto` (default): Automatic detection
+- `--language english`: Force English (faster)
+- `--language spanish/french/german/etc.`: Other languages
 
-# Process a specific file
-poetry run python transcribe_and_summarise.py --file your_audio_file.mp3
-```
+**Batch Processing Options:**
+- `--batch`: Process all files in calls_to_process/
+- `--input-folder custom_folder`: Process from custom directory
+- `--force`: Reprocess existing files
 
-### Batch Processing (Multiple Files)
-```bash
-# Process all .mp3 files in the calls_to_process folder
-poetry run python transcribe_and_summarise.py --batch
-
-# Process files from a custom folder
-poetry run python transcribe_and_summarise.py --batch --input-folder custom_folder
-
-# Force all audio to be treated as English (faster transcription)
-poetry run python transcribe_and_summarise.py --batch --language english
-
-# Force reprocessing of all files (including previously processed ones)
-poetry run python transcribe_and_summarise.py --batch --force
-```
-
-### Language Options
-```bash
-# Force English for single file
-poetry run python transcribe_and_summarise.py --file audio.mp3 --language english
-
-# Use automatic language detection
-poetry run python transcribe_and_summarise.py --batch --language auto
-
-# Other supported languages: spanish, french, german, italian, portuguese, etc.
-poetry run python transcribe_and_summarise.py --batch --language spanish
-```
-
-### Configure Prompts and Settings (Non-Technical Users)
-```bash
-# Using Poetry shell
-poetry shell
-python configure.py
-
-# Or run directly with Poetry
-poetry run python configure.py
-
-# Docker version
-./docker-run.sh shell
-python configure.py
-```
-
-### Test Ollama Connection
-```bash
-# Using Poetry shell
-poetry shell
-python test_ollama.py
-
-# Or run directly with Poetry
-poetry run python test_ollama.py
-
-# Docker version
-./docker-run.sh shell
-python test_ollama.py
-```
+**Testing & Configuration:**
+- `python test_ollama.py`: Test Ollama connection
+- `python configure.py`: Interactive configuration menu
 
 ## Output Files
 
-### Docker Mode & Batch Processing
-Files are organised in dedicated directories:
-- `calls_transcribed/filename.txt` - Chronologically ordered transcript with timestamps and speaker labels
-- `calls_summary/filename.txt` - AI-generated summary with key topics, action items, and decisions  
-- `calls_analysis/filename.txt` - Speaking time statistics, turn analysis, and conversation metrics
+The system generates three types of output for each processed audio file:
 
-### Native Single File Mode
-Files are saved in the current directory:
-- `call_transcript.txt` - Chronologically ordered transcript with timestamps and speaker labels
-- `call_summary.txt` - AI-generated summary with key topics, action items, and decisions
-- `conversation_analysis.txt` - Speaking time statistics, turn analysis, and conversation metrics
+1. **Transcript** (`calls_transcribed/filename.txt`)
+   - Chronologically ordered conversation with timestamps
+   - Speaker labels (configurable: Customer/Agent by default)
+   - Clean, human-readable format
+
+2. **AI Summary** (`calls_summary/filename.txt`)
+   - Key topics discussed
+   - Action items and commitments
+   - Decisions made and next steps
+   - Overall tone and customer satisfaction
+
+3. **Conversation Analysis** (`calls_analysis/filename.txt`)
+   - Speaking time per speaker (percentages and duration)
+   - Turn-taking patterns and frequency
+   - Average turn length statistics
 
 ## How It Works
 
@@ -329,8 +222,7 @@ Transcribe/
 ├── transcribe_and_summarise.py   # Main script with batch processing
 ├── configure.py                  # Configuration interface
 ├── test_ollama.py               # Ollama connectivity test
-├── pyproject.toml               # Poetry configuration and dependencies
-├── poetry.lock                  # Poetry lock file
+├── requirements.txt             # Python dependencies
 ├── .python-version              # Python version for pyenv
 ├── config.txt                   # Configuration settings
 ├── prompt_template.txt          # AI analysis prompt template
@@ -351,10 +243,12 @@ Transcribe/
 
 ## Dependencies
 
-- `pydub` - Audio processing
-- `speechrecognition` - Fallback transcription
-- `requests` - Ollama API communication
-- `openai-whisper` - Primary transcription engine
+All dependencies are managed via `requirements.txt`:
+- `faster-whisper==1.1.1` - High-performance transcription engine (optimized for all platforms)
+- `pydub==0.25.1` - Audio processing
+- `SpeechRecognition==3.10.0` - Fallback transcription
+- `requests==2.31.0` - Ollama API communication
+- `tqdm==4.67.0` - Progress bars
 
 ## Troubleshooting
 
@@ -434,46 +328,28 @@ ollama serve
 ### Environment Issues
 ```bash
 # Recreate virtual environment if needed
-rm -rf transcribe_env
-python -m venv transcribe_env
-source transcribe_env/bin/activate
+rm -rf venv
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Configuration (For Non-Technical Users)
+## Configuration
 
-The application can be easily customised without editing code:
-
-### Interactive Configuration Menu
+### Interactive Configuration
 ```bash
-python configure.py
-```
+# Native
+source venv/bin/activate && python configure.py
 
-This provides a user-friendly menu to:
-- **View/Edit AI Analysis Prompts**: Customise how the AI analyses transcripts
-- **Edit Application Settings**: Change models, speaker names, etc.
-- **Create Example Templates**: Generate prompt templates for different use cases
+# Docker
+./docker-run.sh shell && python configure.py
+```
 
 ### Configuration Files
 
-#### `prompt_template.txt` - AI Analysis Instructions
-Customise how the AI analyses your transcripts:
-```
-Please analyse the following phone call transcript and provide:
-
-1. **Key Topics Discussed**: Main subjects covered in the call
-2. **Action Items**: Any tasks, commitments, or follow-ups mentioned  
-3. **Customer Satisfaction**: Was the customer satisfied?
-
-Call Transcript:
-{TRANSCRIPT}
-
-Provide analysis:
-```
-
-#### `config.txt` - Application Settings
-```
-# AI Model Settings
+**`config.txt`** - Application settings:
+```ini
+# AI Models
 OLLAMA_MODEL=llama3.1:latest
 WHISPER_MODEL=base
 
@@ -481,84 +357,40 @@ WHISPER_MODEL=base
 LEFT_SPEAKER_NAME=Customer
 RIGHT_SPEAKER_NAME=Agent
 
-# Processing Settings
+# Processing
 SEGMENT_MERGE_THRESHOLD=2.0
-
-# Language Settings
-FORCE_LANGUAGE=english
-# Options: auto, english, spanish, french, german, italian, portuguese, etc.
+FORCE_LANGUAGE=auto
 ```
 
-### Pre-Built Prompt Templates
-
-Run `python configure.py` and select option 5 to create example templates for:
-- **Customer Service Calls**: Focus on issue resolution and satisfaction
-- **Sales Calls**: Track prospects, objections, and opportunities
-- **Medical Consultations**: Document symptoms, assessments, and treatment plans
-- **Meeting Notes**: Capture decisions, action items, and follow-ups
-
-### Quick Customisation Examples
-
-**Change Speaker Names**:
-```bash
-# Edit config.txt
-LEFT_SPEAKER_NAME=John
-RIGHT_SPEAKER_NAME=Sarah
+**`docker.env`** - Docker environment variables:
+```ini
+OLLAMA_MODEL=llama3.1:latest
+WHISPER_MODEL=base
+LEFT_SPEAKER_NAME=Customer
+RIGHT_SPEAKER_NAME=Agent
 ```
 
-**Use Different AI Model**:
-```bash
-# Edit config.txt  
-OLLAMA_MODEL=mistral:latest
+**`prompt_template.txt`** - AI analysis instructions (customisable)
+
+
+## Performance & Optimisation
+
+### System Requirements
+- **Minimum**: 4GB RAM, 10GB storage
+- **Recommended**: 8GB+ RAM, 20GB+ storage
+- **First run**: Downloads ~4GB Ollama model
+- **Subsequent runs**: Fast startup (~1-2 seconds)
+
+### Model Selection
+```ini
+# In config.txt or docker.env
+WHISPER_MODEL=tiny     # Fastest (~39MB)
+WHISPER_MODEL=base     # Balanced (default, ~139MB)
+WHISPER_MODEL=small    # Better accuracy (~461MB)
+WHISPER_MODEL=medium   # Best accuracy (~1.42GB)
 ```
 
-**Customise Analysis Focus**:
-```bash
-# Edit prompt_template.txt to focus on specific aspects
-# Example: Add "Risk Assessment" or "Compliance Check" sections
-```
-
-## Example Output
-
-The system processes audio files and generates three types of output:
-
-1. **Transcript** (`calls_transcribed/`): Chronologically ordered conversation with speaker labels and timestamps
-2. **Summary** (`calls_summary/`): AI-generated structured analysis including:
-   - Key topics discussed  
-   - Action items and commitments
-   - Decisions made
-   - Overall tone and sentiment
-   - Next steps and follow-ups
-3. **Analysis** (`calls_analysis/`): Conversation metrics including:
-   - Speaking time per speaker
-   - Turn-taking patterns
-   - Conversation flow statistics
-
-## Performance Notes
-
-### Docker Performance
-- **First run**: Downloads Ollama model (~4GB for llama3.1) - Whisper models pre-cached ⚡
-- **Subsequent runs**: Ultra-fast startup (~1-2 seconds total)
-- **Whisper model loading**: ~0.5 seconds (pre-cached base model)
-- **Processing time**: Depends on audio length and hardware
-- **Memory usage**: ~4-8GB RAM recommended for optimal performance
-
-### Resource Requirements
-- **Minimum**: 4GB RAM, 10GB free disk space
-- **Recommended**: 8GB+ RAM, 20GB+ free disk space for multiple models
-- **GPU**: Optional but significantly improves Whisper transcription speed
-
-### Optimisation Tips
-```bash
-# Use smaller models for faster processing
-WHISPER_MODEL=tiny        # Fastest, lower accuracy (~39MB)
-WHISPER_MODEL=base        # Good balance (default, pre-cached) (~139MB)
-WHISPER_MODEL=small       # Better accuracy, slower (~461MB)
-WHISPER_MODEL=medium      # High accuracy, much slower (~1.42GB)
-
-# Force language for faster transcription
-FORCE_LANGUAGE=english    # Skip language detection
-
-# Note: Base model is pre-cached in Docker for instant loading!
-# Other models will download on first use but are then cached.
-```
+### Speed Optimisation
+- Set `FORCE_LANGUAGE=english` to skip language detection
+- Use smaller Whisper models for faster processing
+- Ensure adequate system RAM (8GB+ recommended)

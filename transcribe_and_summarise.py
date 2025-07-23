@@ -8,10 +8,11 @@ Creates chronologically ordered, human-readable transcripts.
 import os
 import json
 import requests
+import warnings
+import logging
 from pydub import AudioSegment
 from pydub.effects import normalize, compress_dynamic_range
 import speech_recognition as sr
-import whisper
 from pathlib import Path
 from datetime import datetime, timedelta
 import re
@@ -22,6 +23,19 @@ import time
 from typing import List, Tuple
 import numpy as np
 
+# Try to import whisper libraries - prefer faster-whisper
+try:
+    from faster_whisper import WhisperModel
+    FASTER_WHISPER_AVAILABLE = True
+except ImportError:
+    FASTER_WHISPER_AVAILABLE = False
+
+try:
+    import whisper
+    STANDARD_WHISPER_AVAILABLE = True
+except ImportError:
+    STANDARD_WHISPER_AVAILABLE = False
+
 
 class CallTranscriber:
     def __init__(self, config_file="config.txt", prompt_file="prompt_template.txt"):
@@ -30,9 +44,9 @@ class CallTranscriber:
         self.config = self.load_config(config_file)
         self.prompt_template = self.load_prompt_template(prompt_file)
         
-        # Initialize components with config values
-        self.ollama_url = self.config.get('ollama_url', 'http://localhost:11434')
-        self.ollama_model = self.config.get('ollama_model', 'llama3.1:latest')
+        # Initialize components with config values (environment variables override config file)
+        self.ollama_url = os.environ.get('OLLAMA_URL', self.config.get('ollama_url', 'http://localhost:11434'))
+        self.ollama_model = os.environ.get('OLLAMA_MODEL', self.config.get('ollama_model', 'llama3.1:latest'))
         self.whisper_model_name = self.config.get('whisper_model', 'base')
         self.segment_merge_threshold = float(self.config.get('segment_merge_threshold', '2.0'))
         self.left_speaker_name = self.config.get('left_speaker_name', 'Speaker 1')
@@ -41,11 +55,30 @@ class CallTranscriber:
         
         self.recognizer = sr.Recognizer()
         
-        # Load Whisper model
-        print(f"Loading Whisper model: {self.whisper_model_name}...")
-        self.whisper_model = whisper.load_model(self.whisper_model_name)
+        # Load Whisper model - try faster-whisper first for better performance
+        if FASTER_WHISPER_AVAILABLE:
+            print(f"Loading faster-whisper model: {self.whisper_model_name}...")
+            try:
+                self.whisper_model = WhisperModel(self.whisper_model_name)
+                self.using_faster_whisper = True
+                print(f"✅ Faster-whisper model loaded successfully")
+            except Exception as e:
+                print(f"Warning: Could not load faster-whisper model: {e}")
+                if STANDARD_WHISPER_AVAILABLE:
+                    print(f"Falling back to standard Whisper...")
+                    self.whisper_model = whisper.load_model(self.whisper_model_name)
+                    self.using_faster_whisper = False
+                else:
+                    raise RuntimeError("Neither faster-whisper nor standard whisper could be loaded. Please install at least one: pip install faster-whisper")
+        elif STANDARD_WHISPER_AVAILABLE:
+            print(f"Loading standard Whisper model: {self.whisper_model_name}...")
+            self.whisper_model = whisper.load_model(self.whisper_model_name)
+            self.using_faster_whisper = False
+        else:
+            raise RuntimeError("No Whisper library available. Please install either: pip install faster-whisper OR pip install openai-whisper")
         
         print(f"Configuration loaded:")
+        print(f"  - Ollama URL: {self.ollama_url}")
         print(f"  - Ollama Model: {self.ollama_model}")
         print(f"  - Whisper Model: {self.whisper_model_name}")
         print(f"  - Speaker Labels: {self.left_speaker_name}, {self.right_speaker_name}")
@@ -151,53 +184,100 @@ Please provide a clear, structured summary:"""
         print(f"Transcribing {speaker_label} using Whisper with timing...")
         
         try:
-            # Suppress progress bars and warnings during transcription
-            import warnings
-            import logging
-            
-            # Temporarily suppress warnings and progress bars
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=UserWarning)
+            if self.using_faster_whisper:
+                # Use faster-whisper API
+                transcribe_kwargs = {
+                    'word_timestamps': True,
+                    'vad_filter': True,
+                    'vad_parameters': dict(min_silence_duration_ms=500)
+                }
                 
-                # Disable tqdm progress bars for this transcription
-                import os
-                old_tqdm_disable = os.environ.get('TQDM_DISABLE', '')
-                os.environ['TQDM_DISABLE'] = '1'
-                
-                try:
-                    # Transcribe with word-level timestamps
-                    transcribe_kwargs = {
-                        'word_timestamps': True,
-                        'verbose': False,
-                        'no_speech_threshold': 0.6,
-                        'condition_on_previous_text': False
+                # Add language parameter if not auto-detection
+                if self.force_language and self.force_language != 'auto':
+                    # Convert common language names to codes for faster-whisper
+                    language_map = {
+                        'english': 'en',
+                        'spanish': 'es', 
+                        'french': 'fr',
+                        'german': 'de',
+                        'italian': 'it',
+                        'portuguese': 'pt',
+                        'russian': 'ru',
+                        'japanese': 'ja',
+                        'chinese': 'zh'
                     }
                     
-                    # Add language parameter if not auto-detection
-                    if self.force_language and self.force_language != 'auto':
-                        transcribe_kwargs['language'] = self.force_language
-                        print(f"Forcing language to: {self.force_language}")
+                    lang_code = language_map.get(self.force_language, self.force_language)
+                    transcribe_kwargs['language'] = lang_code
+                    print(f"Forcing language to: {lang_code}")
+                
+                # Suppress faster-whisper runtime warnings for cleaner output
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", category=RuntimeWarning, module="faster_whisper")
                     
-                    result = self.whisper_model.transcribe(audio_file_path, **transcribe_kwargs)
-                finally:
-                    # Restore original TQDM_DISABLE setting
-                    if old_tqdm_disable:
-                        os.environ['TQDM_DISABLE'] = old_tqdm_disable
-                    elif 'TQDM_DISABLE' in os.environ:
-                        del os.environ['TQDM_DISABLE']
-            
-            segments = []
-            for segment in result.get('segments', []):
-                if segment['text'].strip():
-                    segments.append({
-                        'start': segment['start'],
-                        'end': segment['end'],
-                        'text': segment['text'].strip(),
-                        'speaker': speaker_label,
-                        'speaker_id': speaker_id
-                    })
-            
-            return segments
+                    # Use faster-whisper to transcribe
+                    segments_generator, info = self.whisper_model.transcribe(
+                        audio_file_path, **transcribe_kwargs
+                    )
+                    
+                    # Convert generator to list and format segments
+                    segments = []
+                    for segment in segments_generator:
+                        if segment.text.strip():
+                            segments.append({
+                                'start': segment.start,
+                                'end': segment.end,
+                                'text': segment.text.strip(),
+                                'speaker': speaker_label,
+                                'speaker_id': speaker_id
+                            })
+                
+                return segments
+            else:
+                # Use standard Whisper API
+                # Suppress progress bars and warnings during transcription
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", category=UserWarning)
+                    
+                    # Disable tqdm progress bars for this transcription
+                    import os
+                    old_tqdm_disable = os.environ.get('TQDM_DISABLE', '')
+                    os.environ['TQDM_DISABLE'] = '1'
+                    
+                    try:
+                        # Transcribe with word-level timestamps
+                        transcribe_kwargs = {
+                            'word_timestamps': True,
+                            'verbose': False,
+                            'no_speech_threshold': 0.6,
+                            'condition_on_previous_text': False
+                        }
+                        
+                        # Add language parameter if not auto-detection
+                        if self.force_language and self.force_language != 'auto':
+                            transcribe_kwargs['language'] = self.force_language
+                            print(f"Forcing language to: {self.force_language}")
+                        
+                        result = self.whisper_model.transcribe(audio_file_path, **transcribe_kwargs)
+                    finally:
+                        # Restore original TQDM_DISABLE setting
+                        if old_tqdm_disable:
+                            os.environ['TQDM_DISABLE'] = old_tqdm_disable
+                        elif 'TQDM_DISABLE' in os.environ:
+                            del os.environ['TQDM_DISABLE']
+                
+                segments = []
+                for segment in result.get('segments', []):
+                    if segment['text'].strip():
+                        segments.append({
+                            'start': segment['start'],
+                            'end': segment['end'],
+                            'text': segment['text'].strip(),
+                            'speaker': speaker_label,
+                            'speaker_id': speaker_id
+                        })
+                
+                return segments
                 
         except Exception as e:
             print(f"Whisper transcription failed for {speaker_label}: {e}")

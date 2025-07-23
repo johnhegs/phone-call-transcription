@@ -39,16 +39,23 @@ Enhancement suggestions are welcome! Please include:
 git clone https://github.com/your-username/phone-call-transcriber.git
 cd phone-call-transcriber
 
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
 # Install dependencies
-poetry install
-poetry run pip install openai-whisper
+pip install -r requirements.txt
+pip install faster-whisper
+
+# Install development dependencies (optional)
+pip install pytest black flake8
 
 # Run tests
-poetry run pytest
+pytest
 
 # Run linting
-poetry run flake8 src/
-poetry run black src/
+flake8 .
+black .
 ```
 
 #### Coding Standards

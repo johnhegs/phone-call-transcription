@@ -28,7 +28,7 @@ def test_ollama_connection(url="http://localhost:11434"):
         print(f"❌ Error testing Ollama: {e}")
         return False
 
-def test_ollama_query(url="http://localhost:11434", model="llama3.2"):
+def test_ollama_query(url="http://localhost:11434", model="llama3.1:latest"):
     """Test a simple query to Ollama."""
     try:
         prompt = "Say hello and confirm you are working properly."
@@ -66,7 +66,7 @@ def main():
         print("\nPlease ensure Ollama is running:")
         print("1. Install Ollama: https://ollama.ai/")
         print("2. Start the service: ollama serve")
-        print("3. Pull a model: ollama pull llama3.2")
+        print("3. Pull a model: ollama pull llama3.1")
 
 if __name__ == "__main__":
     main()
