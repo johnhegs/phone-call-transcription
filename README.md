@@ -109,9 +109,10 @@ flowchart TD
 2. **Docker environment running with 8GB+ RAM**
 
 ### Native Installation
-1. **Python 3.11+** (managed by pyenv)
-2. **Ollama** installed and running locally
-3. **8GB+ RAM** for optimal performance
+1. **macOS, Linux, or WSL** (required for automated setup script)
+2. **Python 3.11+** (can be automatically installed via script)
+3. **Ollama** (can be automatically installed via script)
+4. **8GB+ RAM** for optimal performance
 
 ## Quick Start
 
@@ -126,7 +127,23 @@ cp your_audio_file.mp3 calls_to_process/
 ./docker-run.sh single your_audio_file.mp3
 ```
 
-### Native
+### Native (Automated - Recommended for macOS/Linux/WSL)
+> **Note:** The automated setup script requires macOS, Linux, or WSL (Windows Subsystem for Linux)
+
+```bash
+# Automated setup and run (handles everything automatically)
+./run-native.sh
+```
+
+The script will:
+- ✓ Install Python 3.11+ via pyenv (if needed)
+- ✓ Create virtual environment
+- ✓ Install all dependencies
+- ✓ Install and configure Ollama
+- ✓ Download AI models
+- ✓ Guide you through processing your files
+
+### Native (Manual Setup)
 ```bash
 # Setup (one-time)
 pyenv install 3.11.13
@@ -226,6 +243,7 @@ Transcribe/
 ├── .python-version              # Python version for pyenv
 ├── config.txt                   # Configuration settings
 ├── prompt_template.txt          # AI analysis prompt template
+├── run-native.sh                # Automated native setup script (macOS/Linux/WSL)
 ├── docker-compose.yml           # Docker services configuration
 ├── Dockerfile                   # Docker image definition
 ├── docker-entrypoint.sh         # Docker startup script
