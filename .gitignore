@@ -32,12 +32,19 @@ right_channel_speaker2.wav
 call_transcript.txt
 call_summary.txt
 conversation_analysis.txt
+structured_output_*.csv
+
+# User-specific prompt files (may contain sensitive business logic)
+*_custom.txt
+*_private.txt
 
 # Batch processing folders
 calls_to_process/
 calls_transcribed/
 calls_summary/
 calls_analysis/
+calls_structured_output/
+transcript_insights/
 
 # OS generated files
 .DS_Store
@@ -57,9 +64,24 @@ Thumbs.db
 
 # Claude Code CLI
 .claude/
+CLAUDE.md 
+AGENT.md
+WARP.md
 
 # Secret keys and config
 .webui_secret_key
+*.key
+*.pem
+*.p12
+*.pfx
+*secret*
+*credential*
+*password*
+
+# User-specific config overrides
+config.local.txt
+config.*.local.txt
+docker.local.env
 
 # Logs
 *.log

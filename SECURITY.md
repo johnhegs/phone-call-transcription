@@ -17,7 +17,13 @@ We take security vulnerabilities seriously. If you discover a security vulnerabi
 
 **Please do NOT report security vulnerabilities through public GitHub issues.**
 
-Instead, please send an email to: [security@example.com] with the following information:
+Instead, please report security vulnerabilities privately using GitHub's Security Advisory feature:
+
+1. Go to the repository's "Security" tab
+2. Click "Report a vulnerability"
+3. Fill in the details
+
+Or open a private issue with the following information:
 
 - **Vulnerability Description**: Clear description of the issue
 - **Steps to Reproduce**: Detailed steps to reproduce the vulnerability
@@ -56,12 +62,24 @@ Instead, please send an email to: [security@example.com] with the following info
 - **Volume Permissions**: Proper volume permissions and mounting
 - **Image Security**: Regular base image updates for security patches
 
-### 🚨 Common Security Risks
+### 🛡️ Implemented Security Protections
+
+#### Path Traversal Protection (v1.0+)
+- ✅ **Directory Traversal Prevention**: All user-supplied file paths are validated
+- ✅ **Whitelisted Directories**: Access restricted to project directories only
+- ✅ **Extension Validation**: Only approved file extensions allowed (.mp3, .wav, .txt, etc.)
+- Files outside the project directory are rejected with clear error messages
+
+#### Resource Limits (v1.0+)
+- ✅ **Audio File Size Limit**: Maximum 500MB per audio file
+- ✅ **Prompt File Size Limit**: Maximum 1MB per prompt file
+- ✅ **Column Count Limit**: Maximum 50 columns in structured output
+- Prevents denial-of-service attacks via resource exhaustion
 
 #### Input Validation
-- **Audio File Validation**: Validate audio file formats and sizes
-- **Configuration Validation**: Sanitise configuration inputs
-- **Path Traversal**: Prevent directory traversal attacks
+- ✅ **Audio File Validation**: File format and size validation before processing
+- ✅ **Configuration Validation**: Configuration inputs are sanitized
+- ✅ **Filename Sanitization**: Basenames extracted to prevent path injection
 
 #### Network Security
 - **Local Services**: Ollama and application run on localhost only
@@ -102,6 +120,32 @@ We regularly perform:
 - **Container Scanning**: Docker image vulnerability scanning
 - **Penetration Testing**: Regular security assessments
 
+#### Testing Security Protections
+
+You can verify the implemented security protections:
+
+**Path Traversal Protection:**
+```bash
+# These should fail with security errors
+python transcribe_and_summarise.py --file ../../etc/passwd
+python transcribe_and_summarise.py --structured ../../../../tmp/malicious.txt
+python transcribe_and_summarise.py --config ../../../sensitive.conf
+```
+
+**File Size Limits:**
+```bash
+# Create a large file (should be rejected)
+dd if=/dev/zero of=large_test.mp3 bs=1M count=600
+python transcribe_and_summarise.py --file large_test.mp3
+```
+
+**Valid Usage (should work):**
+```bash
+# These should work normally
+python transcribe_and_summarise.py --file activitycall.mp3
+python transcribe_and_summarise.py --structured structured_prompt_example.txt
+```
+
 ## Responsible Disclosure
 
 We believe in responsible disclosure and will work with security researchers to:
@@ -123,7 +167,7 @@ Security updates will be:
 ## Contact
 
 For security-related questions or concerns:
-- **Email**: [security@example.com]
-- **PGP Key**: [Link to PGP key if available]
+- **GitHub Security Advisories**: Use the repository's Security tab
+- **GitHub Issues**: For general security questions (not vulnerabilities)
 
 Thank you for helping keep our project secure! 🔐

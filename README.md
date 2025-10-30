@@ -94,6 +94,7 @@ flowchart TD
 - **Conversation Analytics**: Detailed statistics on speaking time, turns, and conversation dynamics
 - **Local AI Summarisation**: Uses Ollama (llama3.1) running locally for intelligent call summaries
 - **Customisable AI Prompts**: Easy-to-edit prompt templates for tailored analysis (customer service, sales, medical, etc.)
+- **Structured CSV Output**: Extract specific data from transcripts into Excel-compatible CSV files with customizable columns
 - **Docker Support**: Fully containerised with isolated Ollama service for consistent deployments
 - **Flexible Deployment**: Choose between Docker (recommended) or native Python installation
 
@@ -181,10 +182,11 @@ python transcribe_and_summarise.py --language english  # Force language
 
 ### File Organisation
 ```
-calls_to_process/     # Input: Place audio files here
-calls_transcribed/    # Output: Transcription files (.txt)
-calls_summary/        # Output: AI summaries (.txt)
-calls_analysis/       # Output: Conversation analysis (.txt)
+calls_to_process/          # Input: Place audio files here
+calls_transcribed/         # Output: Transcription files (.txt)
+calls_summary/             # Output: AI summaries (.txt)
+calls_analysis/            # Output: Conversation analysis (.txt)
+calls_structured_output/   # Output: Structured CSV files
 ```
 
 ### Advanced Options
@@ -202,6 +204,14 @@ calls_analysis/       # Output: Conversation analysis (.txt)
 **Testing & Configuration:**
 - `python test_ollama.py`: Test Ollama connection
 - `python configure.py`: Interactive configuration menu
+
+**Structured Output (CSV):**
+```bash
+# Generate structured CSV from existing transcripts
+python transcribe_and_summarise.py --structured structured_prompt_example.txt
+```
+
+For detailed documentation, see [docs/STRUCTURED_OUTPUT.md](docs/STRUCTURED_OUTPUT.md)
 
 ## Output Files
 
@@ -222,6 +232,23 @@ The system generates three types of output for each processed audio file:
    - Speaking time per speaker (percentages and duration)
    - Turn-taking patterns and frequency
    - Average turn length statistics
+
+### Structured CSV Output
+
+When using the `--structured` mode, the system generates a single Excel-compatible CSV file in the `calls_structured_output/` folder:
+
+- **One row per transcript**: Each analyzed call becomes a row in the CSV
+- **Customizable columns**: Define what data to extract using a prompt file
+- **Timestamped filename**: e.g., `calls_structured_output/structured_output_20241030_143022.csv`
+- **Quote-delimited**: Fully compatible with Microsoft Excel
+
+**Use Cases:**
+- Customer service analytics (extract names, issues, resolutions, satisfaction scores)
+- Sales call analysis (identify needs, objections, products discussed, likelihood to close)
+- Quality assurance (agent performance ratings, compliance checks)
+- Trend analysis (categorize calls, identify patterns over time)
+
+See [docs/STRUCTURED_OUTPUT.md](docs/STRUCTURED_OUTPUT.md) for detailed documentation.
 
 ## How It Works
 

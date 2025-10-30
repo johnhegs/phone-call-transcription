@@ -102,6 +102,11 @@ def edit_config_interactive():
             'description': 'AI model to use for analysis',
             'examples': ['llama3.1:latest', 'llama2:latest', 'mistral:latest']
         },
+        'ollama_num_ctx': {
+            'current': '16384',
+            'description': 'Ollama context window (tokens). Increase for longer transcripts',
+            'examples': ['4096', '8192', '16384', '32768', '65536']
+        },
         'whisper_model': {
             'current': 'base',
             'description': 'Whisper model for transcription',

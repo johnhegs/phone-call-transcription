@@ -5,6 +5,13 @@
 OLLAMA_MODEL=llama3.1:latest
 OLLAMA_URL=http://localhost:11434
 
+# Ollama Context Window (how much text the AI can process at once)
+# Default: 16384 tokens (~12,000 words or ~60 minutes of transcript)
+# Increase this if you get truncation warnings or incomplete summaries for long calls
+# Common values: 4096 (default), 8192, 16384, 32768, 65536
+# Note: Higher values require more RAM. 16384 works well for calls up to 60 minutes.
+OLLAMA_NUM_CTX=16384
+
 # Whisper Model (tiny, base, small, medium, large)
 # Note: medium/large models require 4GB+ RAM, use base for limited memory
 WHISPER_MODEL=base
@@ -27,6 +34,7 @@ INPUT_FOLDER=calls_to_process
 OUTPUT_TRANSCRIPT_FOLDER=calls_transcribed
 OUTPUT_SUMMARY_FOLDER=calls_summary
 OUTPUT_ANALYSIS_FOLDER=calls_analysis
+OUTPUT_STRUCTURED_FOLDER=calls_structured_output
 SKIP_EXISTING_FILES=true
 MAX_CONCURRENT_PROCESSING=1
 

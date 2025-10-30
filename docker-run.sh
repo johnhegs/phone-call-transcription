@@ -35,7 +35,7 @@ check_docker() {
 # Function to setup directories
 setup_directories() {
     print_status "Setting up directories..."
-    mkdir -p calls_to_process calls_transcribed calls_summary calls_analysis
+    mkdir -p calls_to_process calls_transcribed calls_summary calls_analysis calls_structured_output
     
     # Create default config.txt if it doesn't exist
     if [ ! -f "config.txt" ]; then
@@ -44,6 +44,11 @@ setup_directories() {
 # AI Model Settings
 OLLAMA_MODEL=llama3.1:latest
 WHISPER_MODEL=base
+
+# Ollama Context Window (how much text the AI can process at once)
+# Default: 16384 tokens (~12,000 words or ~60 minutes of transcript)
+# Increase this if you get truncation warnings or incomplete summaries for long calls
+OLLAMA_NUM_CTX=16384
 
 # Speaker Labels
 LEFT_SPEAKER_NAME=Customer
