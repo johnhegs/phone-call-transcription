@@ -263,28 +263,46 @@ See [docs/STRUCTURED_OUTPUT.md](docs/STRUCTURED_OUTPUT.md) for detailed document
 
 ```
 Transcribe/
-├── activitycall.mp3              # Input audio file (single file mode)
 ├── transcribe_and_summarise.py   # Main script with batch processing
 ├── configure.py                  # Configuration interface
-├── test_ollama.py               # Ollama connectivity test
-├── requirements.txt             # Python dependencies
-├── .python-version              # Python version for pyenv
-├── config.txt                   # Configuration settings
-├── prompt_template.txt          # AI analysis prompt template
-├── run-native.sh                # Automated native setup script (macOS/Linux/WSL)
-├── docker-compose.yml           # Docker services configuration
-├── Dockerfile                   # Docker image definition
-├── docker-entrypoint.sh         # Docker startup script
-├── docker-run.sh                # Docker convenience commands
-├── docker.env                   # Docker environment variables
-├── .dockerignore                # Docker build exclusions
-├── calls_to_process/            # Input folder for batch processing
-├── calls_transcribed/           # Output folder for transcripts
-├── calls_summary/               # Output folder for summaries
-├── calls_analysis/              # Output folder for conversation analysis
-├── call_transcript.txt          # Generated transcript (single mode)
-├── call_summary.txt             # Generated summary (single mode)
-└── conversation_analysis.txt    # Generated analysis (single mode)
+├── requirements.txt              # Python dependencies
+├── requirements-dev.txt          # Development dependencies
+├── .python-version               # Python version for pyenv
+├── .flake8                       # Linting configuration
+│
+├── config.txt                    # Configuration settings
+├── prompt_template.txt           # Default AI analysis prompt template
+├── prompt_example_*.txt          # Example prompts (customer service, sales, medical, meetings)
+├── structured_prompt_example.txt # Example structured CSV prompt file
+│
+├── run-native.sh                 # Automated native setup script (macOS/Linux/WSL)
+├── docker-compose.yml            # Docker services configuration
+├── Dockerfile                    # Docker image definition
+├── docker-entrypoint.sh          # Docker startup script
+├── docker-run.sh                 # Docker convenience commands
+├── docker.env                    # Docker environment variables
+├── .dockerignore                 # Docker build exclusions
+│
+├── test_ollama.py                # Ollama connectivity test
+├── test_faster_whisper.py        # Whisper model test
+├── test_structured_output.py     # Structured output test
+│
+├── docs/                         # Documentation
+│   └── STRUCTURED_OUTPUT.md      # Structured CSV feature documentation
+│
+├── calls_to_process/             # Input: Place audio files here
+├── calls_transcribed/            # Output: Formatted transcripts (.txt)
+├── calls_summary/                # Output: AI summaries (.txt)
+├── calls_analysis/               # Output: Conversation metrics (.txt)
+├── calls_structured_output/      # Output: Structured CSV files
+├── transcript_insights/          # Output: Combined analysis reports
+│
+├── README.md                     # Project documentation
+├── SECURITY.md                   # Security policy
+├── SETUP.md                      # Setup guide
+├── CHANGELOG.md                  # Version history
+├── CONTRIBUTING.md               # Contribution guidelines
+└── CODE_OF_CONDUCT.md            # Community guidelines
 ```
 
 ## Dependencies
