@@ -178,6 +178,7 @@ source venv/bin/activate
 python transcribe_and_summarise.py --file <file>    # Single file
 python transcribe_and_summarise.py --batch          # Batch processing
 python transcribe_and_summarise.py --language english  # Force language
+python transcribe_and_summarise.py --structured structured_prompt_example.txt  # Generate CSV from transcripts
 ```
 
 ### File Organisation
