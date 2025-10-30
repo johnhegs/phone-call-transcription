@@ -1,0 +1,17 @@
+#FileName
+The filename of the transcript being analysed.
+
+#Name
+If the customer mentioned their first name, include it here, otherwise leave this column blank
+
+#WerePaymentsDiscussed
+If at any point during the call the customer mentioned payments, set this column to YES, otherwise set it to NO
+
+#AgentPerformance
+Give a 4 word summary of the agents performance
+
+#AgentPerformanceRating
+Give a number for the Agents performance out of 10. 1 is awful, 10 is excellent
+
+#Outcome
+On balance, was the outcome of the call a happy customer ? YES or NO.
